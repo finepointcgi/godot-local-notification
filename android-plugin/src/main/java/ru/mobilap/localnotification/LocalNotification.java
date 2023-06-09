@@ -3,16 +3,19 @@ package ru.mobilap.localnotification;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.AlarmManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
 import android.net.Uri;
 import android.view.View;
 import java.util.Map;
+
 import java.util.List;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Calendar;
+import java.util.Random;
 
 import org.godotengine.godot.plugin.UsedByGodot;
 import org.json.JSONObject;
@@ -59,7 +62,9 @@ public class LocalNotification extends GodotPlugin {
                 "get_device_token",
                 "get_notification_data",
                 "get_deeplink_action",
-                "get_deeplink_uri"
+                "get_deeplink_uri",
+                "randomizeMessage",
+                "getNextMessage"
         );
     }
 
@@ -122,6 +127,17 @@ public class LocalNotification extends GodotPlugin {
         }
     }
     @UsedByGodot
+    public String randomizeMessage(String[] messages) {
+        Random random = new Random();
+        int index = random.nextInt(messages.length);
+        return messages[index];
+    }
+
+    public String getNextMessage(String[] messages, int maxIndex) {
+        int index = getMessageIndex(messages, maxIndex);
+        return messages[index];
+    }
+    @UsedByGodot
     public void cancelLocalNotification(int tag) {
         AlarmManager am = (AlarmManager)getActivity().getSystemService(getActivity().ALARM_SERVICE);
         PendingIntent sender = getPendingIntent("", "", tag);
@@ -148,6 +164,22 @@ public class LocalNotification extends GodotPlugin {
         i.putExtra("title", title);
         PendingIntent sender = PendingIntent.getBroadcast(getActivity(), tag, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return sender;
+    }
+
+    private int getMessageIndex(String[] messages, int maxIndex) {
+        SharedPreferences prefs = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        int messageIndex = prefs.getInt("messageIndex", 0);
+
+        if (messageIndex >= messages.length) {
+            messageIndex = 0;
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("messageIndex", messageIndex + 1);
+        editor.commit();
+        Log.w(TAG, "Index: " + String.valueOf(messageIndex));
+
+        return messageIndex;
     }
 
     @Override public void onMainActivityResult (int requestCode, int resultCode, Intent data)
