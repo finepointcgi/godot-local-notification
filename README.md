@@ -24,12 +24,12 @@ Show notification with `title` and `message` after delay of `interval` seconds w
 Show notification with `title` and `message` after delay of `interval` seconds with `tag`. You can override notification by it's tag before it was fired.
 `repeating_interval` the notification will be fired in a loop until you cancelled it.
 
-### randomizeMessage(messages: Array)
+### randomizeMessage(messages: Array) -> String
 Pick a random message from the string array pool.
 
 Doesn't work under a schedule.
 
-### getNextMessage(messages: Array, max_index: int)
+### getNextMessage(messages: Array, max_index: int) -> String
 Iterate through each instance of the string array pool and loop back after reaching `max_index` instance.
 
 Doesn't work under a schedule.
